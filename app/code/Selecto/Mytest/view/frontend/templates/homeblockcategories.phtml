@@ -1,0 +1,428 @@
+<?php
+
+/**
+ * @var \Drc\Homeblocks\Block\Homeblockcategories $block
+ */
+
+$collectCategory = $block->getCategoryCollection();
+ 
+?>
+<div id="content">
+    <!-- campaigns -->
+    <section class="campaigns">
+        <div class="container">
+            <h2>Campaigns</h2>
+            <!-- campaigns tabs -->
+            <ul id="campaign-tab">
+            <?php 
+            $i=1;foreach($collectCategory as $category){
+                if($category->getId() > 2 && $i < 4){ ?>
+                <li>
+                    <a href="#<?php echo str_replace(' ', '-', strtolower($category->getName())); ?>"><?php echo $category->getName(); ?></a>
+                </li>
+            <?php $i++;} 
+            } ?>
+                <li>
+                    <a href="#see-all">See all</a>
+                </li>
+                 
+            </ul>
+        </div>
+    </section>
+    <div class="campaign-area">
+        <div class="container">
+        <!-- Automotive End -->
+            <?php $categoryId=3;
+                $categoryProducts = $block->getCategorytoProducts($categoryId);
+                
+                $mainProductDivAutomotive='';
+                $navImagesDivAutomotive='';
+                $proImage='';$shareFBUrl='';$shareTwitterUrl='';$shareWPUrl='';
+                $orderedProducts=0;$proQty=0;$orderedTotalProductQty=0;
+                foreach($categoryProducts as $catproduct)
+                {
+                    $proQty = $block->getproductStock($catproduct->getId());
+                    if($catproduct->getImage() && $catproduct->getImage()!=='no_selection'){
+                        $proImage = $this->getUrl('pub/media').'catalog/product'.$catproduct->getImage();                         
+                    }else{
+                        $proImage = $this->getUrl('pub/media').'catalog/product'.'/placeholder/default/canvas.png';                         
+                    }
+
+                    $abstractProductBlock = $block->getLayout()->createBlock('\Magento\Catalog\Block\Product\AbstractProduct');     
+                    $proPrice =$abstractProductBlock->getProductPrice($catproduct);                    
+                    $proAddCartUrl = $block->getproductAddCartUrl($catproduct);
+                    $getChancetoWinTitle = $catproduct->getChanceToWinTitle();
+                    $getChancetoWinDesc = $catproduct->getChanceToWinDesc();
+                    $getChanceWinImage = $block->getWinimageContentHtml($catproduct->getChanceWinImage());
+                    $getChancetoWinPrice = $catproduct->getChanceToWinPrice(); 
+                    $orderedProducts = (int)$block->getSaleCountProducts($catproduct->getId());
+                    
+                    $orderedTotalProductQty = (int)$orderedProducts + (int)$proQty;
+
+                    $shareFBUrl = "https://www.facebook.com/sharer/sharer.php?u=".urlencode($catproduct->getProductUrl())."&t=".urlencode($catproduct->getName());
+                    $shareTwitterUrl = "http://twitter.com/home/?status=".urlencode($catproduct->getProductUrl())."(".urlencode($catproduct->getName()).")";
+                    $shareWPUrl = "whatsapp://send?text=".urlencode($catproduct->getProductUrl());
+
+
+                    $qtyval='';
+                    for($i=1;$i<=8;$i++){
+                        $qtyval .= '<option value="'.$i.'">'.$i.'</option>';
+                    }
+
+                    $navImagesDivAutomotive .= '<div class="navimg automotive" id="'.$orderedProducts.'"><img src="'.$proImage.'" alt="'.$catproduct->getName().'"></div>';
+
+                    $mainProductDivAutomotive .= '                                        
+                <div class="product-item">                    
+                    <form action="'.$proAddCartUrl.'" method="post" enctype="multipart/form-data">                         
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="product-wrapper">
+                                    <input type="hidden" class="soldty" value='.$proQty.'>
+                                    <div class="product-img"><div class="img"><img src="'.$proImage.'" alt=""></div></div>
+                                    <div class="product-info">
+                                        <div class="product-name">
+                                            <label>'.$catproduct->getName().'</label><span>'.$proPrice.'</span>
+                                        </div>
+                                        <div class="product-btn">
+                                            <div class="form-group"><label>Qty:</label><select class="form-control">'.$qtyval.'</select></div>
+                                            <button class="btn btn-success">
+                                                <i class="fa"><img src="'.$this->getViewFileUrl('images/shopping-cart-icon.svg').'" alt=""></i>
+                                                Add to cart
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sold-out-val">
+                                <span>
+                                    <strong>'.$orderedProducts.'</strong>
+                                    sold out of
+                                    <strong>'.$orderedTotalProductQty.'</strong>
+                                </span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="product-wrapper">
+                                    <div class="product-img">
+                                        <div class="img">'.$getChanceWinImage.'</div>
+                                    </div>
+                                    <div class="product-info">
+                                        <div class="product-name">
+                                            <span>Get a chance to win:</span>
+                                            <label>'.$getChancetoWinPrice.'</label>
+                                        </div>
+                                        <div class="product-btn">
+                                            <a class="btn btn-primary" href="'.$catproduct->getProductUrl().'">View details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                                    
+                        <div class="share-product">
+                            <ul class="list-unstyled">
+                                <li><a href="'.$shareFBUrl.'" tabindex="0" target="_blank"><img src="'.$this->getViewFileUrl('images/fb-share.svg').'" alt=""></a></li>
+                                <li><a href="'.$shareTwitterUrl.'" onclick="javascript:window.open(this.href,"","width=640,height=480,left=0,top=0,location=no,status=yes,scrollbars=yes,resizable=yes");return false" title="Share on Twitter" tabindex="0" target="_blank"><img src="'.$this->getViewFileUrl('images/twitter-share.svg').'" alt=""></a></li>
+                                <li><a href="'.$shareWPUrl.'" tabindex="0" target="_blank"><img src="'.$this->getViewFileUrl('images/whatsapp-share.svg').'" alt=""></a></li>
+                            </ul>
+                        </div>
+                    </form>
+                </div>
+                ';
+                } 
+            ?>
+            <div id="automotive">
+                <!-- Closing Soon -->
+                <div class="filter-block">
+                    <h2 class="red">Automotive</h2>
+                    <div class="product-container">
+                        <div class="filter-nav clearfix">
+                            <div class="slick-for-arrow"></div>
+                            <div class="product-nav">
+                                <?php echo $navImagesDivAutomotive;  ?>                                
+                            </div>
+                        </div>
+                        <div class="filter-box">
+                            <div class="progress-bar" style="width: 90%;"></div>
+                            <div class="product-slider">
+                                <?php echo $mainProductDivAutomotive; ?>                                 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Automotive End -->
+
+        <!-- Cash -->
+            <?php $categoryId=4;
+                $categoryProducts = $block->getCategorytoProducts($categoryId);
+                
+                $mainProductDivCash='';
+                $navImagesDivCash='';
+
+                $proImage='';$shareFBUrl ='';$shareTwitterUrl ='';$shareWPUrl ='';
+                $orderedProducts=0;$proQty=0;$orderedTotalProductQty=0;
+
+                foreach($categoryProducts as $catproduct)
+                {
+                    $proQty = $block->getproductStock($catproduct->getId());
+                    $proImage = $this->getUrl('pub/media').'catalog/product'.$catproduct->getImage();                                        
+                    $abstractProductBlock = $block->getLayout()->createBlock('\Magento\Catalog\Block\Product\AbstractProduct');     
+                    $proPrice =$abstractProductBlock->getProductPrice($catproduct);                    
+                    $proAddCartUrl = $block->getproductAddCartUrl($catproduct);
+                    $getChancetoWinTitle = $catproduct->getChanceToWinTitle();
+                    $getChancetoWinDesc = $catproduct->getChanceToWinDesc();
+                    $getChanceWinImage = $block->getWinimageContentHtml($catproduct->getChanceWinImage());
+                    $getChancetoWinPrice = $catproduct->getChanceToWinPrice(); 
+                    
+                    $orderedProducts = (int)$block->getSaleCountProducts($catproduct->getId());                    
+                    $orderedTotalProductQty = (int)$orderedProducts + (int)$proQty;
+                    
+                    $shareFBUrl = "https://www.facebook.com/sharer/sharer.php?u=".urlencode($catproduct->getProductUrl())."&t=".urlencode($catproduct->getName());
+                    $shareTwitterUrl = "http://twitter.com/home/?status=".urlencode($catproduct->getProductUrl())."(".urlencode($catproduct->getName()).")";
+                    $shareWPUrl = "whatsapp://send?text=".urlencode($catproduct->getProductUrl());
+
+                    $qtyval='';
+                    for($i=1;$i<=8;$i++){
+                        $qtyval .= '<option value="'.$i.'">'.$i.'</option>';
+                    }
+
+                    $navImagesDivCash .= '<div class="navimg cash" id="'.$orderedProducts.'"><img src="'.$proImage.'" alt="'.$catproduct->getName().'"></div>';
+
+                    $mainProductDivCash .= '                    
+                <div class="product-item">
+                    <form action="'.$proAddCartUrl.'" method="post" enctype="multipart/form-data"> 
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="product-wrapper">
+                                    <input type="hidden" class="soldty" value='.$proQty.'>
+                                    <div class="product-img"><div class="img"><img src="'.$proImage.'" alt=""></div></div>
+                                    <div class="product-info">
+                                        <div class="product-name">
+                                            <label>'.$catproduct->getName().'</label><span>'.$proPrice.'</span>
+                                        </div>
+                                        <div class="product-btn">
+                                            <div class="form-group"><label>Qty:</label><select class="form-control">'.$qtyval.'</select></div>
+                                            <button class="btn btn-success">
+                                                <i class="fa"><img src="'.$this->getViewFileUrl('images/shopping-cart-icon.svg').'" alt=""></i>
+                                                Add to cart
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sold-out-val">
+                                <span>
+                                    <strong>'.$orderedProducts.'</strong>
+                                    sold out of
+                                    <strong>'.$orderedTotalProductQty.'</strong>
+                                </span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="product-wrapper">
+                                    <div class="product-img">
+                                        <div class="img">'.$getChanceWinImage.'</div>
+                                    </div>
+                                    <div class="product-info">
+                                        <div class="product-name">
+                                            <span>Get a chance to win:</span>
+                                            <label>'.$getChancetoWinPrice.'</label>
+                                        </div>
+                                        <div class="product-btn">
+                                            <a class="btn btn-primary" href="'.$catproduct->getProductUrl().'">View details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                                    
+                        <div class="share-product">
+                            <ul class="list-unstyled">
+                                <li>
+                                    <a href="'.$shareFBUrl.'" tabindex="0" target="_blank"><img src="'.$this->getViewFileUrl('images/fb-share.svg').'" alt=""></a>
+                                </li>
+                                <li>
+                                    <a href="'.$shareTwitterUrl.'" onclick="javascript:window.open(this.href,"","width=640,height=480,left=0,top=0,location=no,status=yes,scrollbars=yes,resizable=yes");return false" title="Share on Twitter" tabindex="0" target="_blank"><img src="'.$this->getViewFileUrl('images/twitter-share.svg').'" alt=""></a>
+                                </li>
+                                <li>
+                                    <a href="'.$shareWPUrl.'" tabindex="0" target="_blank"><img src="'.$this->getViewFileUrl('images/whatsapp-share.svg').'" alt=""></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </form>
+                </div>
+                ';
+                } 
+            ?>
+            <div id="cash">
+                <div class="filter-block">
+                    <h2 class="red">Cash</h2>
+                    <div class="product-container">
+                        <div class="filter-nav clearfix">
+                            <div class="slick-for-arrow"></div>
+                            <div class="product-nav">
+                                <?php echo $navImagesDivCash;  ?>                                
+                            </div>
+                        </div>
+                        <div class="filter-box">
+                            <div class="progress-bar" style="width: 90%;"></div>
+                            <div class="product-slider">
+                                <?php echo $mainProductDivCash; ?>                                 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>    
+
+            <!-- Cash end -->
+
+            <!-- Electronics -->
+            <?php $categoryId=5;
+                $categoryProducts = $block->getCategorytoProducts($categoryId);
+                
+                $mainProductDivElectronics='';
+                $navImagesDivElectronics='';
+
+                $proImage='';$shareFBUrl ='';$shareTwitterUrl ='';$shareWPUrl ='';
+                $orderedProducts=0;$proQty=0;$orderedTotalProductQty=0;
+
+                foreach($categoryProducts as $catproduct)
+                {
+                    $proQty = $block->getproductStock($catproduct->getId());
+                    $proImage = $this->getUrl('pub/media').'catalog/product'.$catproduct->getImage();                                        
+                    $abstractProductBlock = $block->getLayout()->createBlock('\Magento\Catalog\Block\Product\AbstractProduct');     
+                    $proPrice =$abstractProductBlock->getProductPrice($catproduct);                    
+                    $proAddCartUrl = $block->getproductAddCartUrl($catproduct);
+                    $getChancetoWinTitle = $catproduct->getChanceToWinTitle();
+                    $getChancetoWinDesc = $catproduct->getChanceToWinDesc();
+                    $getChanceWinImage = $block->getWinimageContentHtml($catproduct->getChanceWinImage());
+                    $getChancetoWinPrice = $catproduct->getChanceToWinPrice(); 
+
+                    $orderedProducts = (int)$block->getSaleCountProducts($catproduct->getId());                    
+                    $orderedTotalProductQty = (int)$orderedProducts + (int)$proQty;
+
+                    $shareFBUrl = "https://www.facebook.com/sharer/sharer.php?u=".urlencode($catproduct->getProductUrl())."&t=".urlencode($catproduct->getName());
+                    $shareTwitterUrl = "http://twitter.com/home/?status=".urlencode($catproduct->getProductUrl())."(".urlencode($catproduct->getName()).")";
+                    $shareWPUrl = "whatsapp://send?text=".urlencode($catproduct->getProductUrl());
+
+                    $qtyval='';
+                    for($i=1;$i<=8;$i++){
+                        $qtyval .= '<option value="'.$i.'">'.$i.'</option>';
+                    }
+
+                    $navImagesDivElectronics .= '<div class="navimg electonics" id="'.$orderedProducts.'"><img src="'.$proImage.'" alt="'.$catproduct->getName().'"></div>';
+
+                    $mainProductDivElectronics .= '                    
+                <div class="product-item">
+                    <form action="'.$proAddCartUrl.'" method="post" enctype="multipart/form-data"> 
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="product-wrapper">
+                                    <input type="hidden" class="soldty" value='.$proQty.'>
+                                    <div class="product-img"><div class="img"><img src="'.$proImage.'" alt=""></div></div>
+                                    <div class="product-info">
+                                        <div class="product-name">
+                                            <label>'.$catproduct->getName().'</label><span>'.$proPrice.'</span>
+                                        </div>
+                                        <div class="product-btn">
+                                            <div class="form-group"><label>Qty:</label><select class="form-control">'.$qtyval.'</select></div>
+                                            <button class="btn btn-success">
+                                                <i class="fa"><img src="'.$this->getViewFileUrl('images/shopping-cart-icon.svg').'" alt=""></i>
+                                                Add to cart
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sold-out-val">
+                                <span>
+                                    <strong>'.$orderedProducts.'</strong>
+                                    sold out of
+                                    <strong>'.$orderedTotalProductQty.'</strong>
+                                </span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="product-wrapper">
+                                    <div class="product-img">
+                                        <div class="img">'.$getChanceWinImage.'</div>
+                                    </div>
+                                    <div class="product-info">
+                                        <div class="product-name">
+                                            <span>Get a chance to win:</span>
+                                            <label>'.$getChancetoWinPrice.'</label>
+                                        </div>
+                                        <div class="product-btn">
+                                            <a class="btn btn-primary" href="'.$catproduct->getProductUrl().'">View details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                                    
+                        <div class="share-product">
+                            <ul class="list-unstyled">
+                                <li>
+                                    <a href="'.$shareFBUrl.'" tabindex="0" target="_blank"><img src="'.$this->getViewFileUrl('images/fb-share.svg').'" alt=""></a>
+                                </li>
+                                <li>
+                                    <a href="'.$shareTwitterUrl.'" onclick="javascript:window.open(this.href,"","width=640,height=480,left=0,top=0,location=no,status=yes,scrollbars=yes,resizable=yes");return false" title="Share on Twitter" tabindex="0" target="_blank"><img src="'.$this->getViewFileUrl('images/twitter-share.svg').'" alt=""></a>
+                                </li>
+                                <li>
+                                    <a href="'.$shareWPUrl.'" tabindex="0" target="_blank">
+                                        <img src="'.$this->getViewFileUrl('images/whatsapp-share.svg').'" alt="">
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </form>
+                </div>
+                ';
+                } 
+            ?>
+            <div id="electronics">
+                <div class="filter-block">
+                    <h2 class="red">Electronics</h2>
+                    <div class="product-container">
+                        <div class="filter-nav clearfix">
+                            <div class="slick-for-arrow"></div>
+                            <div class="product-nav">
+                                <?php echo $navImagesDivElectronics;  ?>                                
+                            </div>
+                        </div>
+                        <div class="filter-box">
+                            <div class="progress-bar yellow" style="width: 90%;"></div>
+                            <div class="product-slider">
+                                <?php echo $mainProductDivElectronics; ?>                                 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Cash end -->
+            <!-- See all -->
+            <div id="see-all">
+                <div class="filter-block">
+                    <h2 class="red">See All</h2>
+                    <div class="product-container">
+                        <div class="filter-nav clearfix">
+                            <div class="slick-for-arrow"></div>
+                            <div class="product-nav">
+                                <?php echo $navImagesDivAutomotive;  ?>    
+                                <?php echo $navImagesDivCash;  ?>   
+                                <?php echo $navImagesDivElectronics;  ?>                                
+                            </div>
+                        </div>
+                        <div class="filter-box">
+                            <div class="progress-bar redall" style="width: 90%;"></div>
+                            <div class="product-slider">
+                                 <?php echo $mainProductDivAutomotive; ?>  
+                                <?php echo $mainProductDivCash; ?>           
+                                <?php echo $mainProductDivElectronics; ?>                                 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- See all end -->
+        </div>
+    </div>
+</div>
+
+

@@ -1,0 +1,18 @@
+.minicart-wrapper {
+    float: none !important;
+}
+.block.block-search {
+    float: left !important;
+}
+.logo {
+    float: right !important;
+}
+button.action.tocart {
+    background: #008000;
+    border: 1px solid #008000;
+    border-radius: 12px;
+}
+button.action.tocart:hover {
+    background: #008000;
+    border: 1px solid #008000; 
+}
